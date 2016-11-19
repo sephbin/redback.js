@@ -1,0 +1,96 @@
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="css/cl.css"/>
+	<link rel="stylesheet" href="perfect-scrollbar.min.css" />
+	<script src="js/jquery-2.2.0.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.jqGrid.min.js"></script>
+	<script src="js/jquery.csv.min.js"></script>
+	<script src="js/perfect-scrollbar.jquery.min.js"></script>
+	<script src="dist/redback.js"></script>
+	<style>
+	table {
+		 border-collapse: collapse;
+	}
+	th,td{
+		 border: 1px solid grey;
+	}
+	th{
+		background:#DDD;
+		text-align: left;
+		vertical-align: top;
+	}
+	td{
+		vertical-align: top;
+	}
+	</style>
+</head>
+<body>
+<div class="sort">
+</div>
+<div class="pool">
+</div>
+<div class="page">
+</div>
+</body>
+<script src="data/cl.js"></script>
+<script>
+// $(document).ready(function() {
+//     $.ajax({
+//         type: "GET",
+//         url: "data/cl.csv",
+//         dataType: "text",
+//         success: function(data) {processData(data);}
+//      });
+// });
+
+function processData(allText) {
+    var allTextLines = allText.split(/\r\n|\n/);
+    // console.log('----------');
+    // console.log(allTextLines);
+    var headers = allTextLines[0].split(',');
+    // console.log('----------');
+    // console.log(headers);
+    var lines = [];
+
+    for (var i=1; i<allTextLines.length; i++) {
+        var data = allTextLines[i].split(',');
+        if (data.length == headers.length) {
+
+            var tarr = [];
+            var obarr = {};
+            for (var j=0; j<headers.length; j++) {
+                tarr.push(headers[j]+":"+data[j]);
+                obarr[headers[j]]= data[j];
+            }
+            lines.push(obarr);
+        }
+    }
+    // console.log('----------');
+    // console.log(lines);
+    return(lines);
+    window.csvPlaceholder = lines;
+}
+// console.log(csvPlaceholder);
+// 
+// 
+csvThing = "DATASHEET,SPACENAME,ROOMNUMBERS,SPACELOCATION,SPACECAPACITY,FLOORFIN\n1,A,G.1234,Level 1,10m2,WH001\n2,B,C.1234,Level 1,10m2,WH001\nAnesh-Room,Anesh's Room,AN003,Venetian,50m2,CP001"
+processData(csvThing);
+roomTest = roomList;
+redback.rds.parse(roomTest);
+$('div.pool').perfectScrollbar();
+$('div.pool').html(redback.rds.menu(roomTest,{titleKey:'SPACENAME',subKey:'DATASHEET'}));
+content = {"content":[
+	{'type':'standard','key':'SPACENAME','label':'Melbourne:'},
+	{'type':'single','key':'DATASHEET'},
+	{'type':'standard','key':'SPACENAME','label':'Space:','style':{'background':'#FFF'}},
+	{'type':'standard','key':'ROOMNUMBERS','label':'Number:','style':{'background':'#FFF'}},
+	{'type':'standard','label':'Location:','key':'SPACELOCATION','style':{'background':'#FFF'}},
+	{'type':'standard','key':'SPACECAPACITY','label':'Capacity:','style':{'background':'#FFF'}},
+	{'type':'single','text':'Finishes'},
+	{'type':'nested','key':'FLOORFIN','label':'Floor Finishes:','typeProperties':{'nest':'1'}},
+	]};
+redback.rds.initiate(roomTest,content);
+</script>
+</html>
