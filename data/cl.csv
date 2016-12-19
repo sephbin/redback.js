@@ -1,3 +1,16 @@
-"DATASHEET","SPACENAME","ROOMNUMBERS","SPACELOCATION","SPACECAPACITY","FLOORFIN"
-"1","A","G.1234","Level 1","10m2","WH001"
-"2","B","C.1234","Level 1","10m2","WH001"
+DATASHEET,SPACENAME,ROOMNUMBERS,SPACELOCATION,SPACECAPACITY,FLOORFIN
+1,A,G.1234,Level 1,10m2,WH001
+2,B,C.1234,Level 1,10m2,WH001
+3,D,S.5234,Level 2,20m2,AS003
+ASD,jk,2144,b,jk,jk
+,asfa,,,,
+,sdf,,,,
+,sdf,,,,
+,sds,,,,
+,sdfs,,,,
+,sdf,,,,
+,dfs,,,,
+,sdf,,,,
+,sdf,,,,
+,dg,,,,
+,dsfh,,,,

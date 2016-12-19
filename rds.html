@@ -36,14 +36,33 @@
 </body>
 <script src="data/cl.js"></script>
 <script>
-// $(document).ready(function() {
-//     $.ajax({
-//         type: "GET",
-//         url: "data/cl.csv",
-//         dataType: "text",
-//         success: function(data) {processData(data);}
-//      });
-// });
+$('div.pool').perfectScrollbar();
+$(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "data/cl.csv",
+        dataType: "text",
+        success: function(data) {
+        	window.csvPlaceholder = processData(data);
+			console.log('------NEXT------');
+        	roomTest = window.csvPlaceholder;
+			redback.rds.parse(roomTest);
+        	console.log(roomTest);
+			$('div.pool').html(redback.rds.menu(roomTest,{titleKey:'SPACENAME',subKey:'DATASHEET'}));
+			content = {"content":[
+				{'type':'standard','key':'SPACENAME','label':'WOOAH:'},
+				{'type':'single','key':'DATASHEET'},
+				{'type':'standard','key':'SPACENAME','label':'Space:','style':{'background':'#FFF'}},
+				{'type':'standard','key':'ROOMNUMBERS','label':'Number:','style':{'background':'#FFF'}},
+				{'type':'standard','label':'Location:','key':'SPACELOCATION','style':{'background':'#FFF'}},
+				{'type':'standard','key':'SPACECAPACITY','label':'Capacity:','style':{'background':'#FFF'}},
+				{'type':'single','text':'Finishes'},
+				{'type':'nested','key':'FLOORFIN','label':'Floor Finishes:','typeProperties':{'nest':'1'}},
+				]};
+			redback.rds.initiate(roomTest,content);
+        }
+     });
+});
 
 function processData(allText) {
     var allTextLines = allText.split(/\r\n|\n/);
@@ -70,27 +89,8 @@ function processData(allText) {
     // console.log('----------');
     // console.log(lines);
     return(lines);
-    window.csvPlaceholder = lines;
+    // window.csvPlaceholder = lines;
 }
-// console.log(csvPlaceholder);
-// 
-// 
-csvThing = "DATASHEET,SPACENAME,ROOMNUMBERS,SPACELOCATION,SPACECAPACITY,FLOORFIN\n1,A,G.1234,Level 1,10m2,WH001\n2,B,C.1234,Level 1,10m2,WH001\nAnesh-Room,Anesh's Room,AN003,Venetian,50m2,CP001"
-processData(csvThing);
-roomTest = roomList;
-redback.rds.parse(roomTest);
-$('div.pool').perfectScrollbar();
-$('div.pool').html(redback.rds.menu(roomTest,{titleKey:'SPACENAME',subKey:'DATASHEET'}));
-content = {"content":[
-	{'type':'standard','key':'SPACENAME','label':'Melbourne:'},
-	{'type':'single','key':'DATASHEET'},
-	{'type':'standard','key':'SPACENAME','label':'Space:','style':{'background':'#FFF'}},
-	{'type':'standard','key':'ROOMNUMBERS','label':'Number:','style':{'background':'#FFF'}},
-	{'type':'standard','label':'Location:','key':'SPACELOCATION','style':{'background':'#FFF'}},
-	{'type':'standard','key':'SPACECAPACITY','label':'Capacity:','style':{'background':'#FFF'}},
-	{'type':'single','text':'Finishes'},
-	{'type':'nested','key':'FLOORFIN','label':'Floor Finishes:','typeProperties':{'nest':'1'}},
-	]};
-redback.rds.initiate(roomTest,content);
+
 </script>
 </html>

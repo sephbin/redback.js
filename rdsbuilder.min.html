@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html> <head><title></title><link rel=stylesheet href=css/cl.css><link rel=stylesheet href=perfect-scrollbar.min.css><script src=js/jquery-2.2.0.min.js></script><script src=js/jquery-ui.min.js></script><script src=js/jquery.jqGrid.min.js></script><script src=js/jquery.csv.min.js></script><script src=js/perfect-scrollbar.jquery.min.js></script><script src=dist/redback.js></script><style type=text/css>
+		span.mod{
+			position: absolute;
+			background: #F00;
+			border-top-right-radius: 4px;
+			border-bottom-right-radius: 4px;
+			padding-left: 5px;
+			padding-right: 5px;
+			top:-1px;
+			right:-53px;
+			cursor: pointer;
+			padding-top:2px;
+			
+		}
+		span.edit{
+			position: absolute;
+			left:-23px;
+			top:-1px;
+			bottom: 0px;
+			background: #000;
+			color: #FFF;
+			border-top-left-radius: 4px;
+			border-bottom-left-radius: 4px;
+			padding-left: 5px;
+			padding-right: 5px;
+			cursor: pointer;
+		}
+		input{
+			border:none;
+			display:table-cell;
+			width: 100%;
+			background: none;
+			padding-left:4px;
+
+		}
+		table,td{
+			padding: 0px;
+			border-collapse: collapse;
+			border: 1px solid #DDD;
+		}
+		div.left,div.right{
+			position: relative;
+		}
+		div.left{
+			/*padding-left: 10px;*/
+		}
+		div.right{
+			/*padding-right: 10px;*/
+		}
+		div.table{
+			margin-left: 20px;
+		}
+		td.rds.label{
+			background:#EEE;
+		}
+		select.key,select.value{
+			margin-right:10px;
+			text-align: right;
+			border:none;
+			display:table-cell;
+			width: 158px;
+			background: none;
+			padding-left:4px;
+			padding-right: 4px;
+		}
+	</style></head> <body> <div class=table><table class=editor> </table></div> <button onclick=saveJson();>SAVE</button> </body> <script type=text/javascript>
+	$(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "data/cl.csv",
+        dataType: "text",
+        success: function(data) {
+        	window.csvPlaceholder = processData(data);
+			console.log('------NEXT------');
+        	roomTest = window.csvPlaceholder;
+			redback.rds.parse(roomTest);
+        	console.log(roomTest);
+			$('div.pool').html(redback.rds.menu(roomTest,{titleKey:'SPACENAME',subKey:'DATASHEET'}));
+			content = {"content":[
+				{'type':'standard','key':'SPACENAME','label':'Name:'},
+				{'type':'single','key':'DATASHEET'},
+				{'type':'standard','key':'SPACENAME','label':'Space:','style':{'background':'#FFF'}},
+				{'type':'standard','key':'ROOMNUMBERS','label':'Number:','style':{'background':'#FFF'}},
+				{'type':'standard','label':'Location:','key':'SPACELOCATION','style':{'background':'#FFF'}},
+				{'type':'standard','key':'SPACECAPACITY','label':'Capacity:','style':{'background':'#FFF'}},
+				{'type':'single','text':'Finishes'},
+				{'type':'nested','key':'FLOORFIN','label':'Floor Finishes:','typeProperties':{'nest':'1'}},
+				]};
+			redback.rds.initiate(roomTest,content);
+        }
+     });
+});
+
+	rowTypes ={
+		"Single": ['label'],
+		"Double": ['label','value'],
+		"Triple": ['label','key','value'],
+	}
+	function addRow(cell){
+		row = $(cell).parents('tr');
+		$(row).after('<tr>'+buildRow('Double')+'</tr>');
+		buttonRefresh();
+	}
+	function dupRow(cell){
+		row = $(cell).parents('tr');
+
+		$(row).clone().insertAfter(row);
+		buttonRefresh();
+	}
+	function delRow(cell){
+		row = $(cell).parents('tr');
+		$(row).remove();
+		buttonRefresh();
+	}
+	function buildRow(lookup){
+		rB = "";
+		rowCont = rowTypes[lookup];
+		$.each(rowCont,function(i,o){
+			rB += '<td id="'+i+'" class="rds '+o
+			if(i==(rowCont.length-1)){
+				rB += '" colspan="20">';
+			}else{
+				rB += '">';
+			}
+
+			rB += '<div class="';
+			if(i==0){
+				rB += 'left ';
+			}
+			if(i==(rowCont.length-1)){
+				rB += 'right';
+			}
+			rB += '">';
+			if(i==0){
+				rB += '<span class="edit">&#9874;</span>';
+			}
+			//WRITE CONTENT
+			if(o=="label"){rB += '<input placeholder="'+o+'" class="'+o+'"></input>';}
+			if(o=="key"){rB += '<select class="'+o+'"><option value="" disabled selected hidden>key</option><option value="TEST">TEST</option></select>';}	
+			if(o=="value"){rB += '<select class="'+o+'"><option value="" disabled selected hidden>value</option><option value="TEST">TEST</option></select>';}	
+
+			if(i==(rowCont.length-1)){
+				rB += '<span class="mod"><span class="sub"><img src="ico/min.svg" height="14" width="14"> </span><span class="dup"><img src="ico/dup.svg" height="14" width="14"> </span><span class="add"><img src="ico/add.svg" height="14" width="14"></span></span>';
+			}
+			rB += '</div>';
+			rB += '</td>';
+		});
+		return rB;
+	}
+	function changeRow(r,value){
+		lookup = $(value).val();
+		eLookup = rowTypes[lookup];
+		diaC = "";
+		diaC += '<tr><th colspan="999">EDIT ROW</th></tr>';
+		$.each(eLookup,function(i,o){
+			diaC += '<tr><td>Cell #'+(i+1)+'</td><td>'+o+'</td><td></td></tr>';
+		});
+		$('table.editTable').html(diaC);
+		$(r).html(buildRow(lookup));
+		buttonRefresh();
+	};
+
+	function editRow(cell){
+		row = $(cell).parents('tr');
+		diaC = '';
+		diaC += '<div><a>Row Type: </a><select name="rowType" onchange="changeRow(row,this)"><option value="" disabled selected hidden>Please Choose...</option>';
+		$.each(rowTypes,function(k,v){
+			diaC += '<option value="'+k+'">'+k+'</option>';
+		});
+		diaC += '</select>';
+		diaC += '<div><table class="editTable">';
+		
+		diaC += '</table></div>';
+		diaC += '</div>';
+		$(diaC).dialog();
+		console.log(row);
+	}
+	$('table.editor').html('<tr>'+buildRow('Double')+'</tr>');
+
+
+	function buttonRefresh(){
+		$('.edit').unbind('click');
+		$('.edit').on('click',function(){editRow(this);});
+		$('.add').unbind('click');
+		$('.add').on('click',function(){addRow(this);});
+		$('.sub').unbind('click');
+		$('.sub').on('click',function(){delRow(this);});
+		$('.dup').unbind('click');
+		$('.dup').on('click',function(){dupRow(this);});
+	}
+	buttonRefresh();
+	function saveJson(){
+		array = [];
+		table = $('table');
+		rows = $(table).find('tr');
+		$.each(rows,function(i,o){
+			arrayI = i;
+			console.log(arrayI);
+			inputs = $(o).find('input');
+			inpObj = {}
+			$.each(inputs,function(inI,inO){
+				inClass = $(inO).attr('class');
+				inpObj[inClass]=inO.value;
+			});
+			array[i] = inpObj;
+		});
+		console.log(array);
+	}
+</script> </html>
